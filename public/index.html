@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<script>try{var t=localStorage.getItem('rt-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roundtable</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="layout">
+  <aside id="sidebar">
+    <div id="brandRow">
+      <div id="brand">Round<b>table</b></div>
+      <button id="langToggle" title="Switch to English">EN</button>
+      <button id="themeToggle"></button>
+    </div>
+    <div id="staleBanner" class="stale-banner" hidden data-i18n="sidebar.stale">服务端代码已更新——重启服务后生效（start-server.cmd）</div>
+    <button id="newBenchBtn" data-i18n="sidebar.start">+ 开始</button>
+    <div id="sessionList"></div>
+  </aside>
+  <div id="mainContent">
+    <section id="setup" hidden>
+      <h1 data-i18n="setup.title">发起一场会议</h1>
+      <div id="setupbar" hidden></div>
+      <div id="agentStatus" class="agent-status"></div>
+      <textarea id="topic" data-i18n-ph="setup.topicPh" placeholder="议题：要决策什么？"></textarea>
+      <textarea id="materials" data-i18n-ph="setup.materialsPh" placeholder="背景材料（可选）"></textarea>
+      <input id="workspace" data-i18n-ph="setup.workspacePh" placeholder="项目目录（可选，绝对路径——参会 AI 将可只读查阅该目录下的文件）">
+      <button class="browse-btn" type="button" data-target="workspace" data-i18n="setup.browse">浏览…</button>
+      <div id="lineup">
+        <label><span data-i18n="setup.template">模板</span> <select id="tpl"></select></label>
+        <label data-i18n-title="caps.templateTitle" title="决定本场自动装配哪些能力（纪律/框架）与权限；显式选择即授权，系统绝不按议题猜"><span data-i18n="caps.template">能力模板</span> <select id="capTpl"></select></label>
+        <label><span data-i18n="setup.debaterA">辩手 A</span> <select id="debA"></select></label>
+        <label><span data-i18n="setup.debaterB">辩手 B</span> <select id="debB"></select></label>
+        <label><span data-i18n="setup.judge">仲裁</span> <select id="judge"></select></label>
+        <label data-i18n-title="setup.scribeTitle" title="每轮把双方发言整理成滚动摘要与分歧分类表的角色"><span data-i18n="setup.scribe">书记（摘要）</span> <select id="summ"></select></label>
+      </div>
+      <details id="tplPreview">
+        <summary data-i18n="setup.templatePreview">模板格式预览</summary>
+        <div class="tpl-preview-sections">
+          <section class="tpl-preview-section">
+            <h2 data-i18n="setup.debaterFormat">辩手输出格式</h2>
+            <pre id="tplDebaterFormat"></pre>
+          </section>
+          <section class="tpl-preview-section">
+            <h2 data-i18n="setup.judgeFormat">裁决卡格式</h2>
+            <pre id="tplJudgeFormat"></pre>
+          </section>
+          <section id="tplRoleBriefs" class="tpl-preview-section tpl-role-briefs" hidden>
+            <h2 data-i18n="setup.roleBriefs">角色分工</h2>
+            <div class="tpl-role-brief-grid">
+              <div class="tpl-role-brief">
+                <h3 data-i18n="setup.roleBriefA">辩手 A · 视角</h3>
+                <pre id="tplRoleBriefA"></pre>
+              </div>
+              <div class="tpl-role-brief">
+                <h3 data-i18n="setup.roleBriefB">辩手 B · 视角</h3>
+                <pre id="tplRoleBriefB"></pre>
+              </div>
+            </div>
+          </section>
+        </div>
+      </details>
+      <button id="start" class="primary" data-i18n="setup.start">开始第 1 轮（clean room）</button>
+    </section>
+    <main id="arena" hidden>
+      <div id="arenaBody">
+        <div id="arenaMain" class="mid">
+          <div id="brief" hidden>
+            <div id="briefTopic"></div>
+            <details id="briefDetails"><summary data-i18n="arena.brief">议题与背景材料</summary><pre id="briefMaterials"></pre></details>
+          </div>
+          <div id="arenaTracks">
+            <section class="col side-a track track-a" id="colA" aria-label="观点轨道 A"><h2><span class="name"></span> <span class="badge"></span><span class="roundnav"></span>
+              <span class="colactions"><button class="retry" data-i18n="arena.retry">重试</button><button class="skip" data-i18n="arena.skip">跳过</button></span></h2><div class="feed"></div></section>
+            <section class="col side-b track track-b" id="colB" aria-label="观点轨道 B"><h2><span class="name"></span> <span class="badge"></span><span class="roundnav"></span>
+              <span class="colactions"><button class="retry" data-i18n="arena.retry">重试</button><button class="skip" data-i18n="arena.skip">跳过</button></span></h2><div class="feed"></div></section>
+          </div>
+        </div>
+        <aside id="arenaSide" aria-label="决策侧栏">
+          <div id="arenaSideHead"><strong data-i18n="arena.sideTitle">决策侧栏</strong><span class="arena-side-head-actions"><button id="arenaSideWiden" type="button" title="加宽侧栏" aria-label="加宽侧栏" aria-pressed="false">⤢</button><button id="arenaSideClose" type="button" data-i18n="arena.sideClose">收起</button></span></div>
+          <div id="staffStatus" class="agent-status" hidden></div>
+          <div id="summary"></div>
+          <button id="resummarize" hidden data-i18n="arena.resummarize">重新生成本轮摘要</button>
+          <div id="judgecard" hidden>
+            <h3 data-i18n="arena.verdict">裁决卡</h3><div id="verdictStatus" hidden></div>
+            <div id="judgeStructured" class="summary-content judge-structured"></div>
+            <button id="copycard" data-i18n="arena.copy">复制</button> <span id="flowbackAnyWrap" hidden><select id="flowbackTarget"></select> <button id="flowbackGo" class="accent-outline" data-i18n="arena.flowbackGo">投放</button></span>
+            <details class="summary-raw judge-raw"><summary data-i18n="arena.viewRaw">查看原文</summary><pre id="judgeRaw"></pre></details>
+          </div>
+          <div id="xoverQueue" hidden></div>
+          <details id="chatPanel">
+            <summary data-i18n="arena.groupChat" data-i18n-title="arena.groupChatToggle" title="展开/收起群聊">群聊</summary>
+            <div class="chat-head"><span data-i18n="arena.groupChat">群聊</span> <span data-i18n="arena.groupChatHint">基于本场会议上下文，与参会 AI 讨论</span></div>
+            <div id="chatLog"></div>
+            <div id="chatBar">
+              <div id="chatRecipients"></div>
+              <textarea id="chatInput" data-i18n-ph="arena.chatInputPh" placeholder="和参会 AI 自由讨论……（Ctrl+Enter 发送）"></textarea>
+              <button id="chatSend" data-i18n="arena.send">发送</button>
+            </div>
+          </details>
+        </aside>
+      </div>
+      <div id="arenaScrim" hidden aria-hidden="true"></div>
+      <div id="arenaCtl">
+        <div id="statebar"></div>
+        <textarea id="note" data-i18n-ph="arena.notePh" placeholder="主持人插话（进入下一轮双方简报）"></textarea>
+        <div id="controls">
+          <button id="sendNoteBtn" data-i18n="arena.sendNote" data-i18n-title="arena.sendNoteTitle" title="随时可发（自动跑轮间也行）——排队进入下一轮双方简报；Ctrl+Enter 同效">插话</button>
+          <button id="next" class="primary" data-i18n="arena.nextRound">下一轮</button><button id="auto" data-i18n="arena.auto">自动跑完</button><label class="autoN"><span data-i18n="arena.upTo">至多</span> <input id="maxR" type="number" min="1" max="10" value="4"> <span data-i18n="arena.rounds">轮</span></label>
+          <button id="stop" data-i18n="arena.stopRound">停止当前轮</button><button id="dojudge" class="accent-outline" data-i18n="arena.goVerdict">进入裁决</button>
+          <button id="partial" data-i18n="arena.savePartial">保存半成品</button>
+          <button id="viewToggle" class="view-toggle"></button>
+          <button id="arenaSideToggle" type="button" aria-controls="arenaSide"><span class="arena-side-toggle-label" data-i18n="arena.sideToggle">决策侧栏</span></button>
+          <span id="arenaSideLive" class="arena-sr-only" role="status" aria-live="polite" aria-atomic="true"></span>
+        </div>
+      </div>
+    </main>
+    <section id="wbSetup">
+      <h1 data-i18n="wbSetup.title">开一个工作台</h1>
+      <p class="hint" data-i18n="wbSetup.hint">多模型群聊：随时提问、点名任意模型接力讨论；聊到需要正式对撞时，一键升格为委员会会议。</p>
+      <div id="wbSetupBar" hidden></div>
+      <div id="wbAgentStatus" class="agent-status"></div>
+      <input id="wbName" data-i18n-ph="wbSetup.namePh" placeholder="给这个工作台起个名（可选）">
+      <input id="wbWorkspace" data-i18n-ph="wbSetup.workspacePh" placeholder="项目目录（可选，绝对路径——聊天时模型可只读查阅；是 git 仓库则可让模型「动手」改文件）">
+      <button class="browse-btn" type="button" data-target="wbWorkspace" data-i18n="setup.browse">浏览…</button>
+      <label class="cap-tpl-row" data-i18n-title="caps.templateTitle" title="决定本场自动装配哪些能力（纪律/框架）与权限；显式选择即授权，系统绝不按议题猜"><span data-i18n="caps.template">能力模板</span> <select id="wbCapTpl"></select></label>
+      <div id="wbParticipants"></div>
+      <button id="wbCreate" class="primary" data-i18n="wbSetup.create">开聊</button>
+      <button id="newSessionBtn" class="linklike" data-i18n="wbSetup.advancedMeeting" data-i18n-title="wbSetup.advancedMeetingTitle" title="不经工作台直接开一场正式会议（一般建议先聊，聊到分歧再「就此开会」）">直接开一场独立会议 →</button>
+    </section>
+    <section id="workbench" hidden>
+      <div id="wbHead">
+        <strong id="wbTitle"></strong>
+        <span id="wbMembers"></span>
+        <button id="wbCapsChip" class="linklike" data-i18n-title="caps.chipTitle" title="查看本场会议模板与已装配能力"></button>
+        <button id="wbPromote" class="accent-outline" data-i18n="wb.promote" data-i18n-title="wb.promoteTitle" title="把这段讨论打包成会议草稿，开一场正式委员会">升格为会议</button>
+      </div>
+      <div id="wbCapsPanel" hidden></div>
+      <div id="wbBody">
+        <div id="wbMain">
+          <div id="wbLog"></div>
+          <div id="wbBar">
+            <div id="wbRecipients"></div>
+            <div id="wbAttachRow" hidden></div>
+            <textarea id="wbInput" data-i18n-ph="wb.inputPh" placeholder="发消息……（不勾收件人 = 回复上一个发言的模型；Ctrl+Enter 发送）"></textarea>
+            <div id="wbActions">
+              <span id="wbRelayCtl"><button id="wbRelay" data-i18n="wb.relay" data-i18n-title="wb.relayTitle" title="让模型们互相接力发言，可点名反驳与追问；输入框里写了什么就以它为题，聊无可聊会自动提前结束">让他们讨论</button><label>× <input id="wbRounds" type="number" min="1" max="8" value="2"> <span data-i18n="arena.rounds">轮</span></label></span>
+              <button id="wbStop" hidden data-i18n="wb.stop">停止</button>
+              <button id="wbAttachBtn" type="button" data-i18n-title="wb.attachTitle" title="上传图片或文本文件作为本条消息的材料（图片仅支持有图片能力的引擎，其余引擎会如实标注看不到）">📎</button>
+              <input id="wbAttachInput" type="file" multiple hidden accept="image/png,image/jpeg,image/gif,image/webp,.txt,.md,.markdown,.json,.csv,.tsv,.log,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.java,.c,.cpp,.h,.cs,.go,.rs,.rb,.sh,.ps1,.bat,.yaml,.yml,.toml,.xml,.html,.css,.sql,.diff,.patch,.ini,.cfg,.conf,.env,.tex">
+              <button id="wbSend" class="primary" data-i18n="wb.send">发送</button>
+            </div>
+          </div>
+        </div>
+        <div id="wbRightRail">
+          <section id='handoffPanel' class='wb-rail-panel' data-state='empty'>
+            <button id='handoffToggle' class='wb-rail-toggle' type='button' aria-expanded='false' aria-controls='handoffBody'>
+              <span data-i18n='handoff.panelTitle'>Execution handoff</span><span class='handoff-toggle-mark' aria-hidden='true'>+</span>
+            </button>
+            <div id='handoffBody' hidden>
+              <p class='handoff-intro' data-i18n='handoff.quickIntro'>把这场讨论的结论复制到剪贴板，粘到你的 Claude/Codex 桌面版执行。Roundtable 只负责一字不差地复制，执行由你在桌面完成。</p>
+              <div id='handoffAgentRow' class='handoff-agent-row'>
+                <label for='handoffAgent' data-i18n='handoff.agentLabel'>用哪个模型来总结</label>
+                <select id='handoffAgent'></select>
+              </div>
+              <button id='handoffGenerate' class='primary' type='button' data-i18n='handoff.generate'>生成预览</button>
+              <section id='handoffPreviewBlock' aria-labelledby='handoffPreviewTitle' hidden>
+                <h4 id='handoffPreviewTitle' data-i18n='handoff.previewTitle'>要复制的完整内容</h4>
+                <button id='handoffCopy' class='primary' type='button' disabled data-i18n='handoff.copy'>复制</button>
+                <pre id='handoffPreview' role='textbox' aria-readonly='true' aria-multiline='true' tabindex='0'></pre>
+              </section>
+              <p id='handoffFeedback' class='handoff-feedback' role='status' aria-live='polite' aria-atomic='true'></p>
+              <div class='handoff-launch-row'>
+                <button id='handoffLaunchClaude' type='button' data-provider='claude' data-i18n='handoff.openClaude'>打开 Claude</button>
+                <button id='handoffLaunchCodex' type='button' data-provider='codex' data-i18n='handoff.openCodex'>打开 Codex</button>
+              </div>
+              <p id='handoffLaunchFeedback' class='handoff-control-hint' role='status' aria-live='polite'></p>
+            </div>
+          </section>
+        <aside id="wbChanges" hidden>
+          <h3 data-i18n="wb.changesTitle">变更</h3>
+          <div id="wbAssign">
+            <div id="wbPermRows"></div>
+            <button id="wbDispatchPointer" class="wb-dispatch-pointer" type="button" aria-controls="handoffBody" data-i18n="wb.dispatchMoved">在「复制给桌面执行」面板生成预览并复制完整内容</button>
+          </div>
+          <div id="wbConflicts" hidden></div>
+          <div id="wbChangesList"></div>
+          <details id="wbRoleHelp" class="wb-role-help">
+            <summary data-i18n="wb.helpTitle">❓ 角色说明</summary>
+            <p data-i18n="wb.helpTalk">讨论者：只动嘴——参与全部讨论与评审，永不碰你的文件。</p>
+            <p data-i18n="wb.helpPropose">提案者：讨论者 + 可被指派修改——在项目的隔离副本里真实改文件，产出变更（diff）；每个文件落进你的工作区前都需你批准。</p>
+            <p data-i18n="wb.helpArbiter">仲裁者：提案者 + 冲突职责——多个变更打架时整理各方 pro/con 供你拍板，你选定后由它执行融合。</p>
+            <p data-i18n="wb.helpDecide">「替我决断」：授权仲裁者在冲突时直接选边并融合（过程留痕）。无论哪档，应用进工作区的批准权永远在你。</p>
+            <p data-i18n="wb.helpNoWrite">为何有的引擎只能当讨论者：写权需要该引擎声明「安全写模式」——隔离副本管住改动不外溢，安全写模式管住过程不越权，缺一层就不给写权。在 adapters/agents.json 为其补上 writeArgs 即可解锁。</p>
+          </details>
+        </aside>
+        </div>
+      </div>
+    </section>
+    <section id="archiveView" hidden>
+      <div id="archiveBar"><button id="archiveBack" data-i18n="archive.back">← 返回</button> <strong id="archiveTopic"></strong> <button id="archiveResume" class="accent-outline" data-i18n="archive.resume">恢复此会话</button></div>
+      <pre id="archiveContent"></pre>
+    </section>
+  </div>
+</div>
+<script src="/i18n.js"></script>
+<script src="/app-core.js"></script>
+<script src="/app-committee.js"></script>
+<script src="/handoff-clipboard.js"></script>
+<script src="/app-workbench.js"></script>
+<script src="/app-sidebar.js"></script>
+<script src="/app-boot.js"></script>
+</body>
+</html>

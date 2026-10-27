@@ -1,0 +1,50 @@
+{
+  "note": "五个会议模板：用户显式选择即授权（v1 铁律：不用 LLM/关键词/语义猜模板）。enabled=本场自动装配；recommendable=只许基于安全元数据建议、须用户批准；blocked=即使相关也不自动进入；模板外能力一律拒绝。writebackHistory 只由「模板写回」二次确认流程追加。",
+  "templates": {
+    "basic_strategy": {
+      "version": 1,
+      "title": { "zh": "基础策略", "en": "Basic strategy" },
+      "enabled": ["strategy-core"],
+      "recommendable": [],
+      "blocked": [],
+      "permissions": { "network": false, "privateData": false, "write": false, "paid": false, "projectRules": "materials" },
+      "writebackHistory": []
+    },
+    "product_strategy_review": {
+      "version": 1,
+      "title": { "zh": "产品/商业策略审查", "en": "Product & business strategy review" },
+      "enabled": ["strategy-core", "product-strategy-discipline"],
+      "recommendable": ["nantian-decision-framework"],
+      "blocked": [],
+      "permissions": { "network": false, "privateData": false, "write": false, "paid": false, "projectRules": "materials" },
+      "writebackHistory": []
+    },
+    "evidence_research": {
+      "version": 1,
+      "title": { "zh": "证据研究与尽调", "en": "Evidence research & diligence" },
+      "enabled": ["strategy-core", "evidence-discipline"],
+      "recommendable": ["web-research"],
+      "blocked": [],
+      "permissions": { "network": false, "privateData": false, "write": false, "paid": false, "projectRules": "materials" },
+      "writebackHistory": []
+    },
+    "technical_review": {
+      "version": 1,
+      "title": { "zh": "技术方案评审", "en": "Technical review" },
+      "enabled": ["strategy-core", "tech-review-discipline"],
+      "recommendable": [],
+      "blocked": [],
+      "permissions": { "network": false, "privateData": false, "write": false, "paid": false, "projectRules": "materials" },
+      "writebackHistory": []
+    },
+    "execution_workbench": {
+      "version": 1,
+      "title": { "zh": "执行型工作台", "en": "Execution workbench" },
+      "enabled": ["strategy-core", "execution-discipline"],
+      "recommendable": [],
+      "blocked": ["nantian-decision-framework", "web-research"],
+      "permissions": { "network": false, "privateData": false, "write": true, "paid": false, "projectRules": "execution" },
+      "writebackHistory": []
+    }
+  }
+}

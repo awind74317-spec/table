@@ -1,0 +1,176 @@
+{
+  "claude": {
+    "name": "Claude",
+    "command": [
+      "claude",
+      "-p",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--disallowedTools",
+      "Bash,Edit,Write,NotebookEdit,WebFetch,WebSearch,Glob,Grep,Read,Task"
+    ],
+    "input": "stdin",
+    "output": "stream-json",
+    "timeoutMs": 600000,
+    "envWhitelist": [
+      "PATH",
+      "SYSTEMROOT",
+      "COMSPEC",
+      "TEMP",
+      "TMP",
+      "USERPROFILE",
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "ALL_PROXY",
+      "NO_PROXY"
+    ],
+    "roles": [
+      "debater",
+      "judge",
+      "summarizer"
+    ],
+    "workspaceArgs": [
+      "-p",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--disallowedTools",
+      "Bash,Edit,Write,NotebookEdit,WebFetch,WebSearch,Task"
+    ],
+    "writeArgs": [
+      "-p",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--disallowedTools",
+      "Bash,NotebookEdit,WebFetch,WebSearch,Task"
+    ],
+    "resumeArgs": [
+      "--resume",
+      "{SESSION_ID}"
+    ]
+  },
+  "codex": {
+    "name": "Codex",
+    "command": [
+      "codex",
+      "exec",
+      "--sandbox",
+      "read-only",
+      "--ephemeral"
+    ],
+    "writeArgs": [
+      "exec",
+      "--json",
+      "--sandbox",
+      "workspace-write"
+    ],
+    "writeOutput": "stream-json",
+    "resumeArgs": [
+      "exec",
+      "resume",
+      "{SESSION_ID}"
+    ],
+    "managedExecutionNote": "Fresh managed execution uses codex exec --json without --ephemeral; resume uses codex exec resume <thread_id> -.",
+    "commandEnvVar": "CODEX_CLI_PATH",
+    "commandFallbackGlob": "~/AppData/Local/OpenAI/Codex/bin/*/codex.exe",
+    "input": "stdin",
+    "output": "text",
+    "timeoutMs": 300000,
+    "envWhitelist": [
+      "PATH",
+      "SYSTEMROOT",
+      "COMSPEC",
+      "TEMP",
+      "TMP",
+      "USERPROFILE",
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "ALL_PROXY",
+      "NO_PROXY"
+    ],
+    "roles": [
+      "debater",
+      "judge",
+      "summarizer"
+    ]
+  },
+  "hermes": {
+    "name": "Hermes",
+    "command": [
+      "~/AppData/Local/hermes/hermes-agent/venv/Scripts/hermes.exe",
+      "chat",
+      "-q",
+      "{PROMPT}",
+      "-Q"
+    ],
+    "commandEnvVar": "HERMES_CLI_PATH",
+    "input": "arg",
+    "output": "text",
+    "dropLines": [
+      "^session_id:"
+    ],
+    "timeoutMs": 300000,
+    "envWhitelist": [
+      "PATH",
+      "USERPROFILE",
+      "HOME",
+      "APPDATA",
+      "LOCALAPPDATA",
+      "SYSTEMROOT",
+      "COMSPEC",
+      "TEMP",
+      "TMP",
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "ALL_PROXY",
+      "NO_PROXY"
+    ],
+    "roles": [
+      "debater",
+      "judge",
+      "summarizer"
+    ]
+  },
+  "openclaw": {
+    "name": "OpenClaw",
+    "command": [
+      "node",
+      "~/AppData/Roaming/npm/node_modules/openclaw/openclaw.mjs",
+      "agent",
+      "--agent",
+      "main",
+      "--session-key",
+      "roundtable-{NONCE}",
+      "-m",
+      "{PROMPT}",
+      "--json",
+      "--model",
+      "google/gemini-3-flash-preview"
+    ],
+    "input": "arg",
+    "output": "json",
+    "timeoutMs": 420000,
+    "envWhitelist": [
+      "PATH",
+      "USERPROFILE",
+      "HOME",
+      "APPDATA",
+      "LOCALAPPDATA",
+      "SYSTEMROOT",
+      "COMSPEC",
+      "TEMP",
+      "TMP",
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "ALL_PROXY",
+      "NO_PROXY"
+    ],
+    "roles": [
+      "debater",
+      "judge",
+      "summarizer"
+    ]
+  }
+}

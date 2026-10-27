@@ -1,0 +1,76 @@
+{
+  "catalogVersion": 1,
+  "note": "Roundtable 策划的能力目录。summary 由 Roundtable 编写（安全元数据），绝不复制 Skill 本体描述；未授权时模型最多只能看到这里的字段，看不到本体。不在本目录中的能力对 Roundtable 不存在。",
+  "capabilities": {
+    "strategy-core": {
+      "name": { "zh": "策略核心纪律", "en": "Strategy core discipline" },
+      "summary": { "zh": "程序性讨论纪律：独立判断、事实/假设分离、反例、证据收敛、明确未决与验证条件", "en": "Procedural discipline: independent judgment, fact/assumption separation, counterexamples, evidence-based convergence, explicit unknowns and verification" },
+      "version": 1,
+      "source": "roundtable-builtin",
+      "risk": "core_discipline",
+      "permissions": [],
+      "phases": ["discussion", "review", "execution"],
+      "assembly": { "type": "inline", "path": "capabilities/strategy-core.md" }
+    },
+    "evidence-discipline": {
+      "name": { "zh": "证据研究纪律", "en": "Evidence research discipline" },
+      "summary": { "zh": "来源分级、原始出处优先、单一来源不定案、检索路径可复现的研究纪律", "en": "Research discipline: source tiers, primary sources first, no single-source conclusions, reproducible search trails" },
+      "version": 1,
+      "source": "roundtable-builtin",
+      "risk": "core_discipline",
+      "permissions": [],
+      "phases": ["discussion", "review"],
+      "assembly": { "type": "inline", "path": "capabilities/evidence-discipline.md" }
+    },
+    "tech-review-discipline": {
+      "name": { "zh": "技术评审纪律", "en": "Technical review discipline" },
+      "summary": { "zh": "可行性、复杂度代价、失败模式、回滚路径、测试面五问的评审纪律", "en": "Review discipline: feasibility, complexity cost, failure modes, rollback path, test surface" },
+      "version": 1,
+      "source": "roundtable-builtin",
+      "risk": "core_discipline",
+      "permissions": [],
+      "phases": ["discussion", "review"],
+      "assembly": { "type": "inline", "path": "capabilities/tech-review-discipline.md" }
+    },
+    "product-strategy-discipline": {
+      "name": { "zh": "产品策略审查纪律", "en": "Product strategy review discipline" },
+      "summary": { "zh": "用户价值、差异化、成本结构、可验证假设四轴的策略审查纪律", "en": "Strategy review discipline: user value, differentiation, cost structure, testable assumptions" },
+      "version": 1,
+      "source": "roundtable-builtin",
+      "risk": "core_discipline",
+      "permissions": [],
+      "phases": ["discussion", "review"],
+      "assembly": { "type": "inline", "path": "capabilities/product-strategy-discipline.md" }
+    },
+    "execution-discipline": {
+      "name": { "zh": "执行纪律", "en": "Execution discipline" },
+      "summary": { "zh": "最小改动、先测后交、说明回退路径、不顺手重构的执行纪律", "en": "Execution discipline: minimal diffs, test before delivery, state the rollback path, no drive-by refactoring" },
+      "version": 1,
+      "source": "roundtable-builtin",
+      "risk": "core_discipline",
+      "permissions": ["write"],
+      "phases": ["execution"],
+      "assembly": { "type": "inline", "path": "capabilities/execution-discipline.md" }
+    },
+    "nantian-decision-framework": {
+      "name": { "zh": "南添商业决策框架", "en": "Nantian business decision framework" },
+      "summary": { "zh": "带特定投资/商业世界观的分析框架（用户本机技能）；会显著影响结论倾向，须确认后才装配", "en": "An analysis framework with a specific investing/business worldview (user-local skill); it visibly biases conclusions and loads only after confirmation" },
+      "version": 1,
+      "source": "user-skill",
+      "risk": "analysis_framework",
+      "permissions": [],
+      "phases": ["discussion", "review"],
+      "assembly": { "type": "user-skill", "path": "~/.claude/skills/nantian-decision/SKILL.md" }
+    },
+    "web-research": {
+      "name": { "zh": "联网检索", "en": "Web research" },
+      "summary": { "zh": "允许参与引擎使用其自带的联网检索能力做外部研究；涉及网络访问，须明确授权", "en": "Lets participating engines use their built-in web search for external research; involves network access and requires explicit authorization" },
+      "version": 1,
+      "source": "roundtable-builtin",
+      "risk": "research_external",
+      "permissions": ["network"],
+      "phases": ["discussion", "review"],
+      "assembly": { "type": "permission-only" }
+    }
+  }
+}

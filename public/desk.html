@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#faf8f5">
+  <title>同桌 · Claude × Codex × GPT</title>
+  <link rel="stylesheet" href="/desk.css">
+</head>
+<body data-desk-view="workbench">
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar" aria-label="對話歷史">
+      <div class="sidebar-top">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">同</span>
+          <span>
+            <strong>同桌</strong>
+            <small>ROUNDTABLE STUDIO</small>
+          </span>
+        </div>
+        <button class="icon-button sidebar-close" id="sidebarClose" type="button" aria-label="關閉歷史側欄">×</button>
+      </div>
+
+      <button class="new-chat-button" id="newChat" type="button"><span aria-hidden="true">＋</span> 新對話</button>
+
+      <div class="history-heading">
+        <span>對話歷史</span>
+        <span class="history-count" id="historyCount">0</span>
+      </div>
+      <label class="history-search">
+        <span aria-hidden="true">⌕</span>
+        <input id="historySearch" type="search" placeholder="搜尋對話" autocomplete="off">
+      </label>
+      <select class="history-filter" id="historyFilter" aria-label="對話顯示範圍">
+        <option value="active">使用中的對話</option>
+        <option value="archived">已封存的對話</option>
+        <option value="all">全部對話</option>
+      </select>
+      <div class="history-list" id="historyList" role="list"></div>
+      <div class="sidebar-foot">
+        <span class="foot-dot" aria-hidden="true"></span>
+        <span id="connectionLabel">正在連線</span>
+        <button class="link-button" id="refreshAll" type="button">重新整理</button>
+      </div>
+    </aside>
+
+    <main class="conversation-column">
+      <header class="topbar">
+        <span class="mobile-brand" aria-hidden="true">同桌<span>／</span></span>
+        <div class="topbar-title">
+          <span class="live-mark" aria-hidden="true"></span>
+          <span id="topbarTitle">還沒有選擇對話</span>
+          <button class="rename-button" id="renameChat" type="button" hidden aria-label="重新命名對話">重新命名</button>
+        </div>
+        <div class="topbar-actions">
+          <span class="mode-pill" id="modePill">唯讀討論</span>
+        </div>
+        <nav class="mobile-nav" aria-label="手機主導覽">
+          <button id="navDiscussion" type="button" aria-label="回到討論" aria-current="page">討論</button>
+          <button id="openSidebar" type="button" aria-label="開啟歷史側欄" aria-controls="sidebar" aria-expanded="false">歷史</button>
+          <button id="openSettings" type="button" aria-label="開啟設定" aria-controls="settingsColumn" aria-expanded="false">設定</button>
+        </nav>
+      </header>
+      <nav class="desk-view-switch" aria-label="同桌檢視">
+        <div class="desk-view-options" role="group" aria-label="切換呈現方式">
+          <button id="viewMeeting" type="button" aria-pressed="false"><span aria-hidden="true">◉</span> 會議桌</button>
+          <button id="viewWorkbench" type="button" aria-pressed="true"><span aria-hidden="true">▦</span> 觀點工作台</button>
+        </div>
+        <span class="desk-view-note">唯讀討論 · 同一場對話</span>
+      </nav>
+      <div class="discussion-status" id="discussionStatus" role="status" hidden>
+        <span class="chair-dot" aria-hidden="true"></span><span id="discussionStatusText"></span>
+      </div>
+
+      <section class="conversation-scroll" id="conversationScroll">
+        <div class="conversation-intro" id="conversationIntro">
+          <div class="eyebrow">ROUNDTABLE · 想法在這裡成形</div>
+          <h1>好想法，<br><em>值得一起想清楚。</em></h1>
+            <p>邀請 Codex、Claude 唯讀查看本地專案，把查到的資訊帶回同桌，和 GPT 一起交換想法。討論後逐案投票，由主席整理結論。</p>
+          <div class="intro-steps" aria-label="工作流程">
+            <span><b>01</b> 圓桌討論</span><i aria-hidden="true">→</i>
+            <span><b>02</b> 投票與裁決</span><i aria-hidden="true">→</i>
+            <span><b>03</b> 主席總結</span>
+          </div>
+        </div>
+
+          <div class="context-banner" id="contextBanner" role="status" aria-live="polite">
+          <span class="context-icon" aria-hidden="true">◌</span>
+          <span id="contextBannerText">所選席位會收到共用對話；圓桌會依右側順序逐席回應。</span>
+        </div>
+
+        <section class="desk-overview" aria-label="席位觀點總覽">
+          <div class="desk-overview-head"><div><div class="eyebrow">YOUR ROUNDTABLE</div><h2 id="deskViewTitle">把不同觀點放在一起看</h2></div><span id="deskSeatCount" class="desk-seat-count"></span></div>
+          <div class="meeting-table" aria-hidden="true"><div class="meeting-table-inner"><span>同桌</span><strong id="meetingTopic">一起把問題想清楚</strong><small id="meetingOrder"></small></div></div>
+          <div class="desk-seat-cards" id="deskSeatCards"></div>
+          <div class="desk-thread-heading"><h2>共同對話</h2><span>完整回覆與討論紀錄</span></div>
+        </section>
+        <section class="voting-panel" id="votingPanel" aria-label="本場投票" hidden></section>
+        <div class="message-feed" id="messageFeed" aria-live="polite" aria-label="共同對話"></div>
+        <div class="empty-feed" id="emptyFeed">
+          <span class="empty-glyph" aria-hidden="true">✦</span>
+          <strong>這張桌子還是空的</strong>
+          <p>寫下你想討論的問題，選一位 Agent 開始。</p>
+        </div>
+      </section>
+
+      <section class="composer-wrap" aria-label="訊息輸入">
+        <div class="composer-card" id="composerCard">
+          <div class="route-row" id="routeOptions">
+            <span class="route-label">送給</span>
+            <span class="route-chips" id="routeChips" data-agent="gpt"></span>
+            <button class="roundtable-chip" id="roundtableMode" type="button"><span aria-hidden="true">◉</span> 圓桌</button>
+            <span class="route-hint" id="routeHint">直接送到已連結的 GPT 對話</span>
+          </div>
+          <textarea id="messageInput" rows="3" placeholder="寫下想討論的問題…" aria-label="輸入訊息"></textarea>
+          <div class="composer-bottom">
+            <button class="route-toggle" id="routeToggle" type="button" aria-controls="routeOptions" aria-expanded="false">送給 <span id="routeSelection">GPT 1</span><span aria-hidden="true">⌃</span></button>
+            <label class="rounds-control" id="roundsControl" hidden>來回 <input id="roundsInput" type="number" min="1" max="8" value="2"> 輪</label>
+            <div class="composer-actions">
+              <span class="busy-label" id="busyLabel" hidden><span class="spinner"></span> 處理中</span>
+              <button class="stop-button" id="stopButton" type="button" hidden>停止</button>
+              <button class="send-button" id="sendButton" type="button" aria-label="送出訊息">送出 <span aria-hidden="true">↗</span></button>
+            </div>
+          </div>
+          <div class="composer-error" id="composerError" role="alert" hidden></div>
+        </div>
+        <p class="composer-note"><span aria-hidden="true">⌘</span> 專案僅供閱讀；各席共用討論內容，施工請回桌面版處理</p>
+      </section>
+    </main>
+
+    <aside class="settings-column" id="settingsColumn" aria-label="Agent 與專案設定">
+      <div class="settings-head">
+        <div>
+          <span class="eyebrow">YOUR ROUNDTABLE</span>
+          <h2>席位與專案</h2>
+        </div>
+        <button class="icon-button settings-close" id="settingsClose" type="button" aria-label="關閉設定">×</button>
+      </div>
+
+      <section class="desk-section agent-section">
+        <div class="section-title-row"><h3>討論席位</h3><span class="section-caption">每席一個獨立 Chat</span></div>
+        <div class="seat-columns" aria-hidden="true"><span>席位</span><span>模型</span><span>推理程度</span></div>
+        <div id="seatList"></div>
+        <details class="gpt-connection" id="gptConnection">
+          <summary>GPT 自動連線 · <span id="gptConnectionSummary">GPT 1</span></summary>
+          <label class="select-label" for="gptSeatSelect">GPT 席位</label>
+          <select id="gptSeatSelect" aria-label="GPT 席位"></select>
+          <p class="field-help">直接送出即可，每個席位會自動建立並記住獨立對話。只需在專用瀏覽器登入一次。</p>
+          <details class="gpt-manual-connection">
+          <summary>進階：改用指定的既有對話</summary>
+          <label class="select-label" for="gptChatUrl">ChatGPT 對話網址</label>
+          <input id="gptChatUrl" type="url" placeholder="https://chatgpt.com/c/…" autocomplete="off" spellcheck="false">
+          <div class="gpt-connection-actions">
+            <button class="soft-button" id="gptSaveLink" type="button">儲存並開啟</button>
+          </div>
+          </details>
+          <div class="gpt-connection-actions">
+            <button class="soft-button" id="gptConfirmLink" type="button">確認連線</button>
+            <button class="soft-button gpt-open-browser" id="gptOpenBrowser" type="button">開啟專用 GPT 瀏覽器</button>
+          </div>
+          <div class="external-seat-note" id="gptConnectionStatus">正在檢查瀏覽器連接…</div>
+        </details>
+        <div class="external-task" id="gptTaskPanel" hidden>
+          <div class="external-task-head"><span id="gptTaskKind">GPT 任務</span><span id="gptTaskSeat">GPT 1</span><span class="external-task-state" id="gptTaskState">等待中</span></div>
+          <div class="seat-status external-status" id="gptStatus">尚未建立外部任務</div>
+          <p class="external-task-instruction" id="gptTaskInstruction"></p>
+          <div class="external-task-actions">
+            <button class="soft-button" id="gptSendTask" type="button">送出目前任務</button>
+            <button class="soft-button" id="gptCopyLaunch" type="button">複製啟動文字（手動備援）</button>
+            <button class="soft-button" id="gptOpenChat" type="button">開啟專用 GPT 瀏覽器</button>
+          </div>
+          <p class="external-task-sync" id="gptTaskSync"></p>
+          
+        </div>
+        <div class="subscription-row" id="subscriptionRow" aria-live="polite"></div>
+      </section>
+
+      <section class="desk-section workspace-section">
+        <div class="section-title-row"><h3>討論專案 · 唯讀</h3><span class="section-caption">可選 · 一般資料夾也可以</span></div>
+        <div class="workspace-field">
+          <span class="folder-icon" aria-hidden="true">⌂</span>
+          <input id="workspaceInput" type="text" placeholder="例如 E:\\AI\\my-project" spellcheck="false">
+          <button class="field-clear" id="clearWorkspace" type="button" aria-label="清除工作區" hidden>×</button>
+        </div>
+        <div class="workspace-actions"><button class="soft-button" id="saveWorkspace" type="button">使用此專案</button><span id="workspaceState">未掛載工作區</span></div>
+        <p class="field-help" id="workspaceHelp">聊天可留空；掛載資料夾後，Codex、Claude 可唯讀查看專案。</p>
+        
+      </section>
+
+      <section class="desk-section roundtable-section">
+        <div class="section-title-row"><h3>圓桌順序</h3><span class="section-caption">依序回應</span></div>
+        <label class="chair-label" for="chairSelect">主席 <select id="chairSelect" aria-label="主席"><option value="">不安排主席</option></select></label>
+        <p class="field-help">主席不投一般票；討論後列案，各席逐案投票，過半同意通過。平票由主席依證據裁決，未決交你決定，最後整理討論結論。未安排主席時維持一般討論，不啟動投票。</p>
+        <div class="order-list" id="orderList"></div>
+        <p class="field-help">勾選要參加的席位；可拖曳已勾選席位調整回應順序。</p>
+      </section>
+
+      
+
+      <footer class="settings-foot"><span>同桌保留在本機 · GPT 經瀏覽器連接</span><span class="foot-key">LOCAL</span></footer>
+    </aside>
+    <div class="mobile-scrim" id="mobileScrim" hidden></div>
+  </div>
+  <dialog class="rename-dialog" id="renameDialog" aria-labelledby="renameDialogTitle">
+    <form id="renameForm">
+      <span class="eyebrow">NAME THIS CONVERSATION</span>
+      <h2 id="renameDialogTitle">重新命名對話</h2>
+      <label class="rename-label" for="renameInput">對話名稱</label>
+      <input id="renameInput" type="text" maxlength="120" autocomplete="off" placeholder="例如：產品上線規劃">
+      <div class="rename-actions">
+        <button class="soft-button" id="renameCancel" type="button">取消</button>
+        <button class="send-button" id="renameSave" type="submit">儲存名稱</button>
+      </div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog class="rename-dialog" id="deleteConversationDialog" aria-labelledby="deleteConversationTitle">
+    <form method="dialog">
+      <h2 id="deleteConversationTitle">刪除對話</h2>
+      <p id="deleteConversationText"></p>
+      <p class="field-help">內容會移到本機 sessions/.trash，可手動復原；不會刪除 ChatGPT 網頁上的對話。</p>
+      <div class="rename-actions">
+        <button class="soft-button" value="cancel">取消</button>
+        <button class="stop-button" value="delete">確認刪除</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="/desk.js" defer></script>
+</body>
+</html>

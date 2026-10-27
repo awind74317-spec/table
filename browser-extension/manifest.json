@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Roundtable GPT bridge",
+  "version": "0.1.0",
+  "description": "Send an approved Roundtable task to the selected ChatGPT conversation.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://chatgpt.com/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://127.0.0.1/*"],
+      "js": ["local.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://chatgpt.com/c/*"],
+      "js": ["chat.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
