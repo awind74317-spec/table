@@ -1122,7 +1122,7 @@ export class Workbench {
       '---',
       '保持一般 Chat，使用 webmcp 接續同桌，不呼叫其他模型或轉到 Work。',
       `你的席位是 ${this.nameOf(t.agentId || 'gpt')}（${t.agentId || 'gpt'}），僅以此席位發言。其他 GPT 席位是不同 Chat，不共用 clientId 或已讀進度。`,
-      '沿用本 Chat 的 clientId 與已取得的有效工具 binding。透過 call_runtime_tool(tool="plugin_tool", arguments={action:"call",runner:<目前連線的 Runner ID>,binding:<既有值>,arguments:<工具參數>}) 呼叫。只有首次缺少或失效的 binding，才以 action="describe",plugin="roundtable",tool=<工具名> 取得；不要每輪重新 describe。',
+      '只使用已確認屬於執行本桌的電腦且已設定 roundtable 提供者的 Runner；身分無法確認時停止，不得向其他電腦傳送配對參數。沿用本 Chat 的 clientId 與已取得的有效工具 binding。透過 call_runtime_tool(tool="plugin_tool", arguments={action:"call",runner:<已確認的本機 Runner ID>,binding:<既有值>,arguments:<工具參數>}) 呼叫。只有首次缺少或失效的 binding，才以 action="describe",plugin="roundtable",tool=<工具名> 取得；不要每輪重新 describe。',
       '本次配對參數：' + JSON.stringify({ connection: path.basename(this.dir), taskId: t.taskId, key: t.key }),
       '先 claim（附既有 clientId；新 Chat 才產生一個）。claim 已包含任務和未讀訊息；hasMore=false 就不要再 read 相同上下文。只使用 roundtable 工具。',
       '同桌只做唯讀討論。使用 claim/read/deliver 取得前席資訊並回覆；不提供 write、test、施工、變更套用或直接啟動桌面工具。',
